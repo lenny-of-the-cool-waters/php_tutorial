@@ -39,8 +39,9 @@ $person = [
     'hobbies' => ['Tennis', 'Video Games'],
 ];
 foreach ($person as $key => $value) {
-    if ($key === 'hobbies') {
-        break;
-    }
-    echo $key . ' ' . $value . '<br>';
+   if(is_array($value)){
+        echo $key . '=> ' .implode(",", $value). '<br>';
+   } else {
+    echo $key . '=> ' . $value . '<br>';
+   }
 }
