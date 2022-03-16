@@ -13,19 +13,32 @@ echo "</pre>"; */
 var_dump($_GET);
 echo "</pre>"; */
 
-$image = "";
-$title = $_POST["title"];
-$description = $_POST["description"];
-$price = $_POST["price"];
-$date = date('Y-m-d H:i:s');
+// _POST super_global
+/* echo '<pre>';
+var_dump($_SERVER);
+echo '</pre>'; */
 
-$statement = $pdo->prepare("INSERT INTO products (title, image, description, price, create_date) VALUES (:title, :image, :description, :price, :date)");
-$statement->bindValue(':title', $title);
-$statement->bindValue(':image', '');
-$statement->bindValue(':description', $description);
-$statement->bindValue(':price', $price);
-$statement->bindValue(':date', $date);
-$statement->execute();
+echo $_SERVER['REQUEST_METHOD'];
+if($_SERVER['REQUEST_METHOD' === 'POST']) {
+    $image = "";
+    $title = $_POST["title"];
+    $description = $_POST["description"];
+    $price = $_POST["price"];
+    $date = date('Y-m-d H:i:s');
+
+    $errors = [];
+
+    if(!$title) { $errors[] = "Product title is required"; }
+    if(!$price) { $price[] = "Product price is required"; }
+
+    $statement = $pdo->prepare("INSERT INTO products (title, image, description, price, create_date) VALUES (:title, :image, :description, :price, :date)");
+    $statement->bindValue(':title', $title);
+    $statement->bindValue(':image', '');
+    $statement->bindValue(':description', $description);
+    $statement->bindValue(':price', $price);
+    $statement->bindValue(':date', $date);
+    $statement->execute();
+}
 
 ?>
 
@@ -44,6 +57,12 @@ $statement->execute();
   </head>
   <body>
     <h1>Create New Product</h1>
+
+    <div class="alert alert-danger">
+        <?php foreach($errors as $error): ?>
+            <div><?php echo $error; ?></div>
+        <?php endforeach; ?>
+    </div>
 
     <form action="" method="post">
         <div class="mb-3">
