@@ -1,74 +1,46 @@
-<?php
+<?php 
 
-include_once 'functions.php';
+require_once('functions.php');
 
-$pdo = new PDO("mysql:host=localhost;port=3306;dbname=products_crud;", "root", "Wekaweka94()");
+$pdo = new PDO("mysql:host=localhost;port=3306;dbname=products_crud", "root", "Wekaweka94()");
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// _Get super-global
-/* echo "<pre>";
-var_dump($_GET);
-echo "</pre>"; */
+$id = $_GET['id'];
 
-// _POST super-global
-/* echo "<pre>";
-var_dump($_GET);
-echo "</pre>"; */
+$statement = $pdo->prepare("SELECT * FROM products WHERE id=:id");
+$statement->bindValue(':id', $id);
+$statement->execute();
+$product = $statement->fetch(PDO::FETCH_ASSOC);
 
-// _POST super_global
-/* echo '<pre>';
-var_dump($_SERVER);
-echo '</pre>'; */
+// $imagePath = $product['image'];
+$title = $product['title'];
+$description = $product['description'];
+$price = $product['price'];
 
-// $_FILES super-global containing all uploaded files
-/* echo '<pre>';
-var_dump($_FILES);
-echo '</pre>'; */
-// exit();
-
-$title = '';
-$image = '';
-$price = '';
-$description = '';
-
-// echo $_SERVER['REQUEST_METHOD'];
-if($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Create images folder if it doesn't exist
-    if(!is_dir('images')) { mkdir('images'); }
-
-    $image = "";
-    $imagePath = "";
-    $title = $_POST["title"];
-    $description = $_POST["description"];
-    $price = $_POST["price"];
-    $date = date('Y-m-d H:i:s');
+if($_SERVER['REQUEST_METHOD'] == "POST") {
+    $title = $_POST['title'];
+    $description = $_POST['description'];
+    $price = $_POST['price'];
+    $image = $_FILES['image'] ?? null;
+    $imagePath = '';
 
     $errors = [];
 
-    if(!$title) { $errors[] = "Product title is required"; }
-    if(!$price) { $price[] = "Product price is required"; }
-    
+    if(!$title) { $errors[] = "Please provide a title!"; }
+    if(!$price) { $errors[] = "Please provide a price!"; }
+    if(!is_dir('images')) { mkdir('images'); }
+
+    if($image) {
+        if($product['image']) { unlink($product['image']); }
+        $imagePath = 'images/'.randomHashString().'/'.$image['name'];
+        mkdir(dirname($imagePath));
+        move_uploaded_file($image['tmp_name'], $imagePath);
+    }
 
     if(empty($errors)) {
-        // moving image from temporary apache location
-        $image = $_FILES['image'] ?? null;
-        if($image && $image['tmp_name']) {
-            $imagePath = 'images/'.randomHashString().'/'.$image['name'];
-            mkdir(dirname($imagePath));
-            move_uploaded_file($image['tmp_name'], $imagePath);
-        }
-        
-
-        $statement = $pdo->prepare("INSERT INTO products (title, image, description, price, create_date) VALUES (:title, :image, :description, :price, :date)");
-        $statement->bindValue(':title', $title);
-        $statement->bindValue(':image', $imagePath);
-        $statement->bindValue(':description', $description);
-        $statement->bindValue(':price', $price);
-        $statement->bindValue(':date', $date);
-        $statement->execute();
-
-        // Redirect to home page once added to DB
-        header('Location: index.php');
+        $query = $pdo->prepare('UPDATE products SET title=:title, image=:image, description=:description, price=:price WHERE id=:id');
+        $query->bindValue(':title', $title);
+        $query->bindValue(':image', $image);
     }
 }
 
@@ -88,7 +60,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Products CRUD!</title>
   </head>
   <body>
-    <h1>Create New Product</h1>
+    <h1>Update Product: <b><?php echo $product['title'] ?></b></h1>
 
     <?php if(!empty($errors)): ?>
         <div class="alert alert-danger">
@@ -99,6 +71,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     <?php endif?>
 
     <form action="" method="post" enctype="multipart/form-data" >
+        <?php if($product['image']):?>
+            <img src="<?php echo $product['image']?>" class="product-img-view" />    
+        <?php endif; ?>
         <div class="mb-3">
             <label for="image" class="form-label">Image</label>    
             <input type="file" class="form-control" name="image" />

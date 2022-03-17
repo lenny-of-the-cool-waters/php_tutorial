@@ -51,13 +51,19 @@ $products = $statement->fetchAll(PDO::FETCH_ASSOC);
             <?php forEach($products as $i => $product): ?>
                 <tr>
                     <th><?php echo $i+1 ?></th>
-                    <td><?php echo $product["image"]?></td>
+                    <td><img src="<?php echo $product['image'];?>" class="thumb-image" /></td>
                     <td><?php echo $product["title"]?></td>
                     <td><?php echo $product["price"]?></td>
                     <td><?php echo $product["create_date"]?></td>
                     <td>
-                        <button type="button" class="btn btn-small btn-outline-primary">Edit</button>
-                        <button type="button" class="btn btn-small btn-outline-danger">Delete</button>
+                        <form action="update.php" method="get" style="display: inline-clock;">
+                            <input type="hidden" name="product" value="<?php echo $product?>" />
+                            <button type="button" class="btn btn-small btn-outline-primary">Edit</button>
+                        </form>
+                        <form action="delete.php" method="post" style="display: inline-block;">
+                            <input type="hidden" name='id' value="<?php echo $product['id']?>" />    
+                            <button type="submit" class="btn btn-small btn-outline-danger">Delete</button>
+                        </form>
                     </td>
                 </tr>
                 <?php endforeach; ?>
