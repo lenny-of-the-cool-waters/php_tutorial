@@ -30,7 +30,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
     if(!$price) { $errors[] = "Please provide a price!"; }
     if(!is_dir('images')) { mkdir('images'); }
 
-    if($image) {
+    if($image && $image['name']) {
         if($product['image']) { unlink($product['image']); }
         $imagePath = 'images/'.randomHashString().'/'.$image['name'];
         mkdir(dirname($imagePath));
@@ -40,8 +40,16 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
     if(empty($errors)) {
         $query = $pdo->prepare('UPDATE products SET title=:title, image=:image, description=:description, price=:price WHERE id=:id');
         $query->bindValue(':title', $title);
-        $query->bindValue(':image', $image);
+        $query->bindValue(':image', $imagePath);
+        $query->bindValue(':description', $description);
+        $query->bindValue(':price', $price);
+        $query->bindValue(':id', $id);
+
+        $query->execute();
+        header('Location: index.php');
     }
+
+    // Add functionality to remove image
 }
 
 ?>
