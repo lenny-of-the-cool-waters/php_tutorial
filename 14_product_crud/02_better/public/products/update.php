@@ -10,53 +10,30 @@ $statement->bindValue(':id', $id);
 $statement->execute();
 $product = $statement->fetch(PDO::FETCH_ASSOC);
 
-// $imagePath = $product['image'];
 $title = $product['title'];
 $description = $product['description'];
 $price = $product['price'];
-$imagePath = $product['image'];
+// $imagePath = $product['image'];
 
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     if (isset($_POST['remove-image'])) {
         $image = null;
         $imagePath = null;
     } else {
-        $title = $_POST['title'];
-        $description = $_POST['description'];
-        $price = $_POST['price'];
-        $image = $_FILES['image'] ?? null;
-        $imagePath = '';
-
-        $errors = [];
-
-        if (!$title) {
-            $errors[] = "Please provide a title!";
-        }
-        if (!$price) {
-            $errors[] = "Please provide a price!";
-        }
-        if (!is_dir('images')) {
-            mkdir('images');
-        }
-
-        if ($image && $image['name']) {
-            if ($product['image']) {
-                unlink($product['image']);
-            }
-            $imagePath = 'images/' . randomHashString() . '/' . $image['name'];
-            mkdir(dirname($imagePath));
-            move_uploaded_file($image['tmp_name'], $imagePath);
-        }
+        require_once '../../validate_product.php';
 
         if (empty($errors)) {
-            $query = $pdo->prepare('UPDATE products SET title=:title, image=:image, description=:description, price=:price WHERE id=:id');
-            $query->bindValue(':title', $title);
-            $query->bindValue(':image', $imagePath);
-            $query->bindValue(':description', $description);
-            $query->bindValue(':price', $price);
-            $query->bindValue(':id', $id);
+            $statement = $pdo->prepare("UPDATE products SET title = :title, 
+                                        image = :image, 
+                                        description = :description, 
+                                        price = :price WHERE id = :id");
+            $statement->bindValue(':title', $title);
+            $statement->bindValue(':image', $imagePath);
+            $statement->bindValue(':description', $description);
+            $statement->bindValue(':price', $price);
+            $statement->bindValue(':id', $id);
 
-            $query->execute();
+            $statement->execute();
             header('Location: index.php');
         }
     }
@@ -98,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         <input type="number" class="form-control" step="0.01" name="price" value="<?php echo $price; ?>" required />
     </div>
 
-    <a href="index.php" class="btn btn-success">Back</a>
+    <a href="/products/index.php" class="btn btn-success">Back</a>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 

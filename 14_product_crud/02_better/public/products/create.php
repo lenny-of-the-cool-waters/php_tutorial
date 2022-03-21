@@ -11,8 +11,7 @@ $errors = [];
 
 // echo $_SERVER['REQUEST_METHOD'];
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
-    require_once('../../validate_product.php');
-    
+    require_once('../../validate_product.php');    
 
     if(empty($errors)) {   
         $statement = $pdo->prepare("INSERT INTO products (title, image, description, price, create_date) VALUES (:title, :image, :description, :price, :date)");
