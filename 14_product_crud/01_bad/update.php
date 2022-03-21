@@ -115,6 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             <input type="number" class="form-control" step="0.01" name="price" value="<?php echo $price; ?>" required />
         </div>
 
+        <a href="index.php" class="btn btn-success">Back</a>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 
