@@ -4,13 +4,17 @@ $pdo = new PDO("mysql:host=localhost;port=3306;dbname=products_crud;", "root", "
 // Throw an exception in the event of an error
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Preparing the statement to avoid SQL injection
-$statement = $pdo->prepare('SELECT * FROM products ORDER BY create_date DESC');
+$search = $_GET['search'];
+if($search) {
+    $statement = $pdo->prepare('SELECT * FROM products WHERE title LIKE :title ORDER BY create_date DESC');
+} else {
+    $statement = $pdo->prepare('SELECT * FROM products ORDER BY create_date DESC');
+}
+
 // Executing the prepared statement
 $statement->execute();
 // Returning all fetched data as an associative array
 $products = $statement->fetchAll(PDO::FETCH_ASSOC);
-
 
 ?>
 
@@ -35,6 +39,14 @@ $products = $statement->fetchAll(PDO::FETCH_ASSOC);
     <p>
         <a href="./create.php" class="btn btn-success">Create Product</a>
     </p>
+
+
+    <form action="">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Search Product" value="<?php echo $search; ?>"aria-label="Search Product" />
+            <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Search</button>
+        </div>
+    </form>
 
     <table class="table">
         <thead>
