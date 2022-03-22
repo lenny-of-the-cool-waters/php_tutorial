@@ -1,6 +1,5 @@
 <?php
 
-
 $title = $_POST['title'];
 $description = $_POST['description'];
 $price = $_POST['price'];
@@ -21,7 +20,7 @@ if ($image && $image['tmp_name']) {
     move_uploaded_file($image['tmp_name'], __DIR__.'/public/images/'.$imagePath);
 }
 
-if (!$title) {
+if (!$title) { 
     $errors[] = 'Product title is required';
 }
 
