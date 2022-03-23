@@ -1,0 +1,15 @@
+{
+    "name": "lennygith/03_better",
+    "authors": [
+        {
+            "name": "lenny-of-the-cool-waters",
+            "email": "lennygith@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "app\\": "./"
+        }
+    }
+}
