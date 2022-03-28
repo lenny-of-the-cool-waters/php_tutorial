@@ -6,6 +6,12 @@ class Router
 {
     public array $getRoutes = [];
     public array $postRoutes = [];
+    public Database $db;
+
+    public function __construct()
+    {
+        $this->db = new Database();
+    }
 
     public function get($url, $fn)
     {
@@ -29,9 +35,22 @@ class Router
         }
 
         if ($fn) {
-            call_user_func($fn);
+            call_user_func($fn, $this);
         } else {
             echo 'Page not found';
         }
+    }
+
+    public function renderView($view, $params = [])
+    {   
+        foreach ($params as $key => $value) {
+            $$key = $value;
+        }
+
+        // Caches output instead of directly sending to browser
+        ob_start();
+        include_once __DIR__ . "/views/$view.php";
+        $content = ob_get_clean();
+        include_once __DIR__."/views/_layout.php";
     }
 }
